@@ -1,0 +1,10 @@
+streamlit
+pandas
+numpy
+faker
+Pillow
+# Optional but used in the code:
+rstr
+scipy
+networkx
+matplotlib
