@@ -1,5 +1,3 @@
-# graph_generator.py
-# (No changes needed from previous answer)
 import streamlit as st
 from utils import generate_graph_basic, nx
 

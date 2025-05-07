@@ -1,5 +1,3 @@
-# text_generator.py
-# (No changes needed from previous answer)
 import streamlit as st
 from utils import fake
 

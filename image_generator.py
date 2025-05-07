@@ -1,5 +1,3 @@
-# image_generator.py
-# (No changes needed from previous answer, as it doesn't import constants directly)
 import streamlit as st
 from utils import generate_simple_image
 
