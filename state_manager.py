@@ -14,6 +14,10 @@ def initialize_state():
             'base_df_preview': None, 'file_uploader_key': 0, 
             'processed_filename': None, 'selected_sheet': None, 'is_csv_upload': False
         },
+        'tabular_prompt': {
+            'prompt': '',
+            'num_rows': 100
+        },
         'excel_mode': { 
             'base_df_preview': None, 'excel_aug_editable_columns': [],
             'selected_sheet': None, 'num_new_rows': 100,

@@ -8,3 +8,4 @@ rstr
 scipy
 networkx
 matplotlib
+openai

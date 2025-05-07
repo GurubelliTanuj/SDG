@@ -1,8 +1,9 @@
 # tabular_generator.py
 import streamlit as st
 import pandas as pd
+import openai
 from datetime import date, datetime, time # Added datetime, time
-
+from prompts import System_Prompt_for_Table_generator
 from constants import DEPENDENCY_CONDITIONS, COLUMN_DATA_TYPES_UI
 from utils import (
     column_editor_ui, add_new_column_ui,
@@ -176,3 +177,63 @@ def generate_tabular_data_action():
             results.update({'data':df, 'message':f"Generated {len(df)} Tabular rows."})
     except Exception as e: results['error'] = f"Tabular generation failed: {e}"; st.exception(e)
     st.session_state.results.update(results); st.session_state.results['is_generating'] = False
+
+def render_tabular_prompt_page():
+    st.info("Provide a prompt to generate tabular data using OpenAI API.")
+    prompt_state = st.session_state.tabular_prompt
+    prompt_state['prompt'] = st.text_area("Enter Prompt", value=prompt_state.get('prompt', ''), height=150, key="tabular_prompt_input")
+    prompt_state['num_rows'] = st.number_input("Number of Rows to Generate", min_value=1, max_value=10000, value=prompt_state.get('num_rows', 100), key="tabular_prompt_num_rows")
+    st.caption("Note: Data will be generated in batches of 100 rows if the total exceeds 100.")
+
+def generate_tabular_prompt_data_action():
+    results = {'data': None, 'message': None, 'error': None}
+    try:
+        prompt_state = st.session_state.tabular_prompt
+        prompt = prompt_state.get('prompt', '').strip()
+        total_rows = prompt_state.get('num_rows', 100)
+
+        if not prompt:
+            results['error'] = "Prompt cannot be empty."
+            st.session_state.results.update(results)
+            st.session_state.results['is_generating'] = False
+            return
+
+        all_data = []
+        rows_generated = 0
+        batch_size = 100
+
+        while rows_generated < total_rows:
+            rows_to_generate = min(batch_size, total_rows - rows_generated)
+            response = openai.ChatCompletion.create(
+                      model="gpt-4o-mini",
+                messages=[
+                    {"role": "system", "content": System_Prompt_for_Table_generator},
+                    {"role": "user", "content": f"{prompt}\nGenerate {rows_to_generate} rows of tabular data in JSON format."}
+                ],
+                max_tokens=2000,
+                temperature=0.7,
+                n=1
+             )
+
+# To get the content:
+            generated_text = response['choices'][0]['message']['content']
+            try:
+                batch_data = pd.read_json(io.StringIO(generated_text))
+                all_data.append(batch_data)
+                rows_generated += len(batch_data)
+            except Exception as e:
+                results['error'] = f"Error parsing generated data: {e}"
+                break
+
+        if all_data:
+            combined_data = pd.concat(all_data, ignore_index=True)
+            results.update({'data': combined_data, 'message': f"Generated {len(combined_data)} rows of tabular data."})
+        else:
+            results['error'] = "No data generated."
+
+    except Exception as e:
+        results['error'] = f"Tabular-Prompt generation failed: {e}"
+        st.exception(e)
+
+    st.session_state.results.update(results)
+    st.session_state.results['is_generating'] = False

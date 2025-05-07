@@ -13,7 +13,7 @@ from constants import (
 )
 from utils import draw_graph, image_to_bytes, nx
 
-from tabular_generator import render_tabular_page, generate_tabular_data_action
+from tabular_generator import render_tabular_page, generate_tabular_data_action, render_tabular_prompt_page, generate_tabular_prompt_data_action
 from excel_generator import render_excel_page, generate_excel_data_action
 from ner_generator import render_ner_page, generate_ner_data_action 
 from image_generator import render_image_page, generate_image_data_action
@@ -67,6 +67,7 @@ elif current_data_type == "NER Augmentation": render_ner_page()
 elif current_data_type == "Image (Basic Shapes)": render_image_page()
 elif current_data_type == "Text (Basic)": render_text_page()
 elif current_data_type == "Graph (Basic Random)": render_graph_page()
+elif current_data_type == "Tabular - Prompt": render_tabular_prompt_page()
 else: st.warning("Config UI not implemented yet.")
 
 st.divider(); st.header("4. Generate Data")
@@ -86,6 +87,8 @@ elif current_data_type == "Text (Basic)":
 elif current_data_type == "Graph (Basic Random)":
     if nx: generation_possible = True; num_items_to_gen = st.session_state.graph.get('num_nodes', 10)
     else: st.error("Cannot generate Graph: NetworkX missing.", icon="⚠️")
+elif current_data_type == "Tabular - Prompt":
+    generation_possible = True; num_items_to_gen = st.session_state.config.get('num_rows', 100)
 
 if generation_possible:
     button_label = f"🚀 Generate {num_items_to_gen} items" if num_items_to_gen > 0 else "🚀 Generate Data"
@@ -103,6 +106,7 @@ if st.session_state.results['is_generating']:
     elif data_type_to_generate == "NER Augmentation": row_count_display = st.session_state.ner_mode.get('num_augmented_samples', 10) 
     elif data_type_to_generate == "Image (Basic Shapes)": row_count_display = st.session_state.image.get('count', 10)
     elif data_type_to_generate == "Text (Basic)": row_count_display = st.session_state.text.get('count', 10)
+    elif data_type_to_generate == "Tabular - Prompt": row_count_display = st.session_state.config.get('num_rows', 100)
     
     spinner_label = f"Generating {row_count_display} items..." if row_count_display > 0 else "Generating data..."
     if data_type_to_generate == "Graph (Basic Random)": spinner_label = "Generating Graph..."
@@ -114,6 +118,7 @@ if st.session_state.results['is_generating']:
         elif data_type_to_generate == "Image (Basic Shapes)": generate_image_data_action()
         elif data_type_to_generate == "Text (Basic)": generate_text_data_action()
         elif data_type_to_generate == "Graph (Basic Random)": generate_graph_data_action()
+        elif data_type_to_generate == "Tabular - Prompt": generate_tabular_prompt_data_action()
         else:
             st.session_state.results.update({'error': f"Gen action not found for: {data_type_to_generate}", 'is_generating': False})
     st.rerun() 

@@ -8,7 +8,7 @@ except ImportError:
     stats = None
 
 # --- Constant Definitions ---
-DATA_TYPES = ["Tabular", "Excel Augmentation", "NER Augmentation", "Image (Basic Shapes)", "Text (Basic)", "Graph (Basic Random)"]
+DATA_TYPES = ["Tabular", "Excel Augmentation", "NER Augmentation", "Image (Basic Shapes)", "Text (Basic)", "Graph (Basic Random)", "Tabular - Prompt"]
 
 # --- MODIFICATION: Adjust Time type ---
 COLUMN_DATA_TYPES_UI = [
